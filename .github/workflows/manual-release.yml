@@ -11,6 +11,10 @@ on:
         description: 'Committed release notes markdown path'
         required: true
         default: 'release-notes/v0.1.0.md'
+      allow_existing_tag:
+        description: 'Allow rerun with existing tag (update release asset/body)'
+        required: true
+        default: 'true'
 
 permissions:
   contents: write
@@ -32,15 +36,19 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      # 3) Validate tag does not already exist (safe-by-default)
-      - name: Validate tag does not exist
+      # 3) Validate existing tag policy
+      - name: Validate tag policy
         shell: pwsh
         run: |
           $tag = "${{ github.event.inputs.version }}"
+          $allow = "${{ github.event.inputs.allow_existing_tag }}"
           git fetch --tags --force
           $exists = git tag -l $tag
-          if ($exists) {
-            throw "Tag already exists: $tag. Aborting release to avoid overwrite."
+          if ($exists -and $allow -ne 'true') {
+            throw "Tag already exists: $tag. Set allow_existing_tag=true to rerun and update release assets/body."
+          }
+          if ($exists -and $allow -eq 'true') {
+            Write-Host "Tag already exists: $tag. Continuing (rerun mode)."
           }
 
       # 4) Parse committed release notes (# title / body)
@@ -88,3 +96,5 @@ jobs:
           draft: false
           prerelease: false
           fail_on_unmatched_files: true
+          overwrite_files: true
+          append_body: false

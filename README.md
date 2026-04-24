@@ -125,6 +125,7 @@ README.md
 
 - `version`（既定: `v0.1.0`）
 - `release_notes_path`（既定: `release-notes/v0.1.0.md`）
+- `allow_existing_tag`（既定: `true`）
 
 ### 実行内容
 
@@ -139,10 +140,17 @@ README.md
 9. GitHub Release 作成
 10. zip 添付
 
+
+### 同一タグでのリラン
+
+- `allow_existing_tag=true` の場合、既存 tag があってもリラン可能です。
+- この場合、Release の本文と asset は再実行内容で更新されます（`overwrite_files=true`）。
+- 既存 tag を厳密に保護したい場合は `allow_existing_tag=false` で実行してください。
+
 ### 安全策
 
 - push では起動しません（`workflow_dispatch` のみ）
-- 既存 tag がある場合はリリースを作成しません（上書き防止）
+- `allow_existing_tag=false` の場合、既存 tag があると失敗して上書きを防止します
 - リリースノート形式が壊れていれば途中で明示的に失敗します
 
 ---
