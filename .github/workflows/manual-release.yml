@@ -66,22 +66,46 @@ jobs:
       - name: Build
         run: dotnet build src/MaskedPi.App/MaskedPi.App.csproj --configuration Release --no-restore
 
-      # 7) Publish
+      # 7) Publish (single-file)
       - name: Publish
         run: >
           dotnet publish src/MaskedPi.App/MaskedPi.App.csproj
           --configuration Release
           --runtime win-x64
           --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
           --output artifacts/publish
 
-      # 8) Zip publish outputs
+      # 8) Create package layout and zip
       - name: Package release ZIP
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          $packageRoot = "artifacts/package"
+          $libsDir = Join-Path $packageRoot "Libs"
+
+          if (Test-Path $packageRoot) {
+            Remove-Item -Path $packageRoot -Recurse -Force
+          }
+
+          New-Item -ItemType Directory -Force -Path $packageRoot | Out-Null
+          New-Item -ItemType Directory -Force -Path $libsDir | Out-Null
+
+          Get-ChildItem -Path artifacts/publish -File | ForEach-Object {
+            if ($_.Extension -eq ".dll") {
+              Copy-Item -Path $_.FullName -Destination $libsDir -Force
+            } else {
+              Copy-Item -Path $_.FullName -Destination $packageRoot -Force
+            }
+          }
+
+          Get-ChildItem -Path artifacts/publish -Directory | ForEach-Object {
+            Copy-Item -Path $_.FullName -Destination (Join-Path $packageRoot $_.Name) -Recurse -Force
+          }
+
           $zipName = "maskedpi-${{ github.event.inputs.version }}-win-x64-selfcontained.zip"
-          Compress-Archive -Path artifacts/publish/* -DestinationPath "artifacts/$zipName" -Force
+          Compress-Archive -Path "$packageRoot/*" -DestinationPath "artifacts/$zipName" -Force
           "zip_path=artifacts/$zipName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
         id: pack
 

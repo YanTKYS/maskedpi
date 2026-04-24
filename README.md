@@ -21,13 +21,19 @@
 
 - 対象: `win-x64`
 - 目的: 対象端末に `.NET Desktop Runtime` が未導入でも起動できるようにする
-- 方針: 初回は安定性優先（単一ファイル化・trim は無効）
+- 方針: 初回は安定性優先（**単一ファイル化**、trim は無効）
 
 ### framework-dependent から変更した理由
 
 対象端末で `.NET Desktop Runtime` が未導入の場合、framework-dependent 配布では起動時に runtime インストール要求が出るためです。
 
 > `txt2voice` など他ツールが同端末で動作するケースは、実行ファイルに runtime を同梱した配布方式（self-contained）を採用している可能性があります。
+
+### 配布レイアウト（視認性改善）
+
+- Release / Build の zip 作成時に `Libs/` フォルダを作成し、`.dll` を分離して格納します。
+- `MaskedPi.App.exe` と設定ファイル（`config/`）は zip 直下に残すため、運用担当者が開いたときの見通しを改善します。
+- さらに publish 自体も single-file 化しているため、zip 直下ファイル数は従来より少なくなります。
 
 ### 注意
 
@@ -106,8 +112,8 @@ README.md
 2. setup-dotnet (8.0.x)
 3. restore
 4. build (Release)
-5. publish (`win-x64`, `self-contained=true`)
-6. zip 化
+5. publish (`win-x64`, `self-contained=true`, `PublishSingleFile=true`)
+6. `Libs/` 分離レイアウトを作成して zip 化
 7. artifact upload
 
 ### 成果物
@@ -135,8 +141,8 @@ README.md
 4. release-notes を PowerShell で解析
 5. restore
 6. build
-7. publish (`win-x64`, `self-contained=true`)
-8. zip 化（`maskedpi-vX.Y.Z-win-x64-selfcontained.zip`）
+7. publish (`win-x64`, `self-contained=true`, `PublishSingleFile=true`)
+8. `Libs/` 分離レイアウトで zip 化（`maskedpi-vX.Y.Z-win-x64-selfcontained.zip`）
 9. GitHub Release 作成
 10. zip 添付
 

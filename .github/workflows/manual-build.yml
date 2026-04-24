@@ -29,21 +29,45 @@ jobs:
       - name: Build
         run: dotnet build src/MaskedPi.App/MaskedPi.App.csproj --configuration Release --no-restore
 
-      # 5) Publish WPF app (self-contained, win-x64)
+      # 5) Publish WPF app (self-contained, win-x64, single-file)
       - name: Publish
         run: >
           dotnet publish src/MaskedPi.App/MaskedPi.App.csproj
           --configuration Release
           --runtime win-x64
           --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
           --output artifacts/publish
 
-      # 6) Zip publish outputs
+      # 6) Create package layout and zip
       - name: Package ZIP
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path artifacts | Out-Null
-          Compress-Archive -Path artifacts/publish/* -DestinationPath artifacts/maskedpi-build-win-x64-selfcontained-v0.1.0.zip -Force
+          $packageRoot = "artifacts/package"
+          $libsDir = Join-Path $packageRoot "Libs"
+
+          if (Test-Path $packageRoot) {
+            Remove-Item -Path $packageRoot -Recurse -Force
+          }
+
+          New-Item -ItemType Directory -Force -Path $packageRoot | Out-Null
+          New-Item -ItemType Directory -Force -Path $libsDir | Out-Null
+
+          Get-ChildItem -Path artifacts/publish -File | ForEach-Object {
+            if ($_.Extension -eq ".dll") {
+              Copy-Item -Path $_.FullName -Destination $libsDir -Force
+            } else {
+              Copy-Item -Path $_.FullName -Destination $packageRoot -Force
+            }
+          }
+
+          Get-ChildItem -Path artifacts/publish -Directory | ForEach-Object {
+            Copy-Item -Path $_.FullName -Destination (Join-Path $packageRoot $_.Name) -Recurse -Force
+          }
+
+          Compress-Archive -Path "$packageRoot/*" -DestinationPath artifacts/maskedpi-build-win-x64-selfcontained-v0.1.0.zip -Force
 
       # 7) Upload artifact (for device verification)
       - name: Upload build artifact
