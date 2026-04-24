@@ -42,11 +42,13 @@
                             </DockPanel>
                         </GroupBox>
 
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="8,0">
-                            <Button Name="MaskButton" Content="マスキング実行" Width="140" Height="38" Margin="0,0,0,8" Click="MaskButton_OnClick" />
-                            <Button Name="ReloadButton" Content="設定再読込" Width="140" Height="34" Margin="0,0,0,8" Click="ReloadButton_OnClick" />
-                            <Button Name="CopyButton" Content="結果をコピー" Width="140" Height="34" Margin="0,0,0,8" Click="CopyButton_OnClick" />
-                            <Button Name="ClearButton" Content="クリア" Width="140" Height="34" Click="ClearButton_OnClick" />
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="8,0" Width="170">
+                            <TextBlock Text="業務プロファイル" Margin="0,0,0,4" />
+                            <ComboBox Name="ProfileComboBox" Margin="0,0,0,8" />
+                            <Button Name="MaskButton" Content="マスキング実行" Width="160" Height="38" Margin="0,0,0,8" Click="MaskButton_OnClick" />
+                            <Button Name="ReloadButton" Content="設定再読込" Width="160" Height="34" Margin="0,0,0,8" Click="ReloadButton_OnClick" />
+                            <Button Name="CopyButton" Content="結果をコピー" Width="160" Height="34" Margin="0,0,0,8" Click="CopyButton_OnClick" />
+                            <Button Name="ClearButton" Content="クリア" Width="160" Height="34" Click="ClearButton_OnClick" />
                         </StackPanel>
 
                         <GroupBox Header="マスキング後テキスト" Grid.Column="2" Margin="8,0,0,0" Padding="8">
@@ -86,7 +88,9 @@
                             <TextBox Name="TesterInputTextBox" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" FontFamily="Yu Gothic UI" FontSize="14" />
                         </GroupBox>
 
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="8,0">
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="8,0" Width="170">
+                            <TextBlock Text="テスタープロファイル" Margin="0,0,0,4" />
+                            <ComboBox Name="TesterProfileComboBox" Margin="0,0,0,8" />
                             <Button Name="TesterRunButton" Content="テスト実行" Width="160" Height="38" Margin="0,0,0,8" Click="TesterRunButton_OnClick" />
                             <Button Name="TesterReloadButton" Content="設定再読込" Width="160" Height="34" Margin="0,0,0,8" Click="ReloadButton_OnClick" />
                             <Button Name="TesterCopyOutputButton" Content="出力をコピー" Width="160" Height="34" Margin="0,0,0,8" Click="TesterCopyOutputButton_OnClick" />

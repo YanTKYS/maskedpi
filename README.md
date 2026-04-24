@@ -2,27 +2,40 @@
 
 地方自治体職員が生成AIへ貼り付ける前に、個人情報・自治体固有IDをルールベースで簡易マスキングするローカル補助ツールです。
 
-## 実装方針（検証強化版）
+## 実装方針（業務別プロファイル対応版）
 
 - **設定主導**: 固定ルールは `config/rules.json`、自治体差分は `config/local_dictionary.json` を編集。
-- **検証重視**: ルール追加より先に、ルールテスターでヒット根拠を可視化。
-- **責務分離**: UI (`MaskedPi.App`) は表示中心、検出・検証ロジックは `MaskedPi.Core` に集約。
-- **将来拡張**: `profile` / `source` / `notes` / `tags` を保持し、業務別運用に備える。
+- **検証重視**: ルールテスターでヒット根拠を可視化。
+- **業務別最適化**: `common` + 選択プロファイルのみ適用し、過剰置換を抑制。
+- **責務分離**: UI (`MaskedPi.App`) は表示中心、検出/選別ロジックは `MaskedPi.Core` に集約。
+
+## 業務別プロファイル機能の概要
+
+利用可能プロファイル:
+
+- `common`
+- `resident`
+- `tax`
+- `welfare`
+- `education`
+
+実行時は **`common` + 選択プロファイル** のルールが有効になります。
+
+- 例: `tax` を選ぶと `common` と `tax` のみ適用
+- `profile` 未指定ルールは `common` 扱い
+
+## UI（最小追加）
+
+- マスキングタブ: 「業務プロファイル」コンボボックスを追加
+- ルールテスタータブ: 「テスタープロファイル」コンボボックスを追加
+
+どちらも同じプロファイル集合を使用し、再実行しやすい構成です。
 
 ## 追加機能（今回）
 
-- WPF に **ルールテスタータブ** を追加。
-  - テスト入力
-  - テスト実行
-  - マスキング後出力
-  - ルールヒット詳細一覧（RuleName / Category / Priority / MatchedText / Replacement / StartIndex / Length / Source）
-  - 設定再読込
-  - 出力コピー
-  - 詳細結果コピー（TSV）
-- `ReplacementRecord` を拡張し、`Priority` / `Source` / `Notes` を保持。
-- `MaskingResult` に `RuleHitCounts` を追加。
-- `RuleTestCase` / `RuleTestCaseLoader` / `RuleTestRunner` を追加。
-- `config/test_cases.json` を追加し、JSONベースの検証ケース管理を導入。
+- プロファイル選択に応じた有効ルール抽出（`MaskingService.GetEffectiveProfileRules`）。
+- 動的辞書ルールのプロファイル対応（`DepartmentNamesByProfile` / `LocalLabelsByProfile` / `FacilityNamesByProfile`）。
+- `RuleTestRunner` がケースごとの `profile` を使って実行可能。
 
 ## フォルダ構成
 
@@ -40,97 +53,98 @@ maskedpi/
 └─ README.md
 ```
 
-## ルールテスター画面の使い方
-
-1. 「ルールテスター」タブを開く。
-2. テストしたい文章を入力。
-3. 「テスト実行」をクリック。
-4. 出力欄でマスキング結果を確認。
-5. 下段の「ヒット詳細」で、どのルールが何を置換したか確認。
-6. 必要に応じて「詳細結果をコピー」でレビュー用に共有。
-
-## ルール追加後の確認手順（推奨）
-
-1. `rules.json` / `local_dictionary.json` を更新。
-2. アプリで「設定再読込」。
-3. ルールテスターで代表入力を実行。
-4. ヒット詳細で `RuleName` / `Priority` / `Source` を確認。
-5. `config/test_cases.json` に再発防止ケースを追加。
-6. `dotnet test` を実行して回帰確認。
-
-## test_cases.json の書き方
-
-`config/test_cases.json` は以下構造です。
-
-- `caseName`: ケース識別名
-- `input`: 入力文
-- `expectedOutput`: 期待出力
-- `expectedHitRules`: 期待ヒットルール名配列
-- `description`: 意図
-- `profile`: 任意（common/resident/tax/welfare/education など）
-
-例:
+## rules.json での profile の書き方
 
 ```json
 {
-  "caseName": "basic_phone",
-  "input": "電話番号 090-1234-5678",
-  "expectedOutput": "電話番号 [電話番号]",
-  "expectedHitRules": ["Phone-General"],
-  "description": "電話番号",
-  "profile": "common"
+  "name": "TaxNotificationNumber",
+  "category": "LocalRule",
+  "pattern": "納税通知書番号[:：]?\\s*[0-9A-Za-z\\-]+",
+  "replacement": "[納税通知書番号]",
+  "priority": 15,
+  "enabled": true,
+  "profile": "tax",
+  "description": "税務系の通知番号"
 }
 ```
 
-## 自治体ローカルルールを増やすときの注意点
+- `profile` 省略時は実行時に `common` として扱われます。
+- 将来の複数所属に備え、内部では拡張しやすい評価構造にしています。
 
-- まずラベル付き（例: `相談管理番号:`）を追加。
-- 次にプレフィックス（例: `CASE-`）を追加。
-- 汎用ルール（`番号` / `ID`）は最後に追加し、priority は後段へ。
-- 追加時は必ず誤検出ケースを `test_cases.json` に同時登録。
+## local_dictionary.json の ByProfile 構造例
 
-## 誤検出が起きたときの見直し手順
+```json
+{
+  "departmentNamesByProfile": {
+    "welfare": ["生活福祉課", "障害福祉課", "高齢者支援課"],
+    "tax": ["税務課", "納税課"],
+    "education": ["学校教育課", "学務課"]
+  },
+  "localLabelsByProfile": {
+    "welfare": ["ケース番号", "相談管理番号"],
+    "tax": ["納税通知書番号", "調定番号"],
+    "education": ["学籍番号", "学校名簿番号"]
+  },
+  "facilityNamesByProfile": {
+    "education": ["第一小学校", "第二中学校"],
+    "welfare": ["福祉センター"]
+  }
+}
+```
 
-1. ルールテスターでヒット詳細を確認（どのルールが原因か特定）。
-2. ルールの `pattern` を狭める（文字数・前後文脈・ラベル必須化）。
-3. `priority` を下げるか、より具体的なルールを前段へ。
-4. 部署+氏名系は除外語（御中/各位/様/主査 等）を見直す。
-5. 再発防止ケースを `test_cases.json` に追加。
+キーが無くてもロードは失敗しません。
 
-## priority 設計指針
+## どの業務でどのプロファイルを選ぶか
 
-- 10〜29: LocalRule
-- 30〜39: ラベル付き属性（辞書動的ルール）
-- 40〜49: Phone / Email / PostalCode
-- 50〜59: Date
-- 60〜69: Address
-- 70〜79: Name
-- 80〜99: 補助ルール
+- 住民記録・窓口: `resident`
+- 税務・収納: `tax`
+- 福祉・介護・相談: `welfare`
+- 学校・学籍: `education`
+- 横断文書・不明時: `common`
 
-`RuleEngine` は重複範囲を先勝ちで確定するため、priority は必ず明示設計してください。
+## 誤検出抑制のためにプロファイルを分ける考え方
 
-## 推奨保守フロー
+- まず `common` は最小限（電話・メール・郵便・日付など）に保つ。
+- 業務固有IDは対応プロファイルへ寄せる。
+- 誤検出時は、
+  1. ルールを具体化
+  2. プロファイルを見直し
+  3. `test_cases.json` に再発防止ケース追加
 
-1. 週次で誤検出/漏れ事例を収集。
-2. `local_dictionary.json` でまず対応。
-3. それでも不足する場合のみ `rules.json` を追加。
-4. `test_cases.json` へケース追加。
-5. `dotnet test` 実行。
-6. 反映後はルールテスターで最終確認。
+## ルールテスター画面の使い方
+
+1. 「ルールテスター」タブを開く。
+2. テスタープロファイルを選択。
+3. テスト文章を入力して実行。
+4. ヒット詳細（RuleName/Priority/Source）を確認。
+
+## ルール追加後の確認手順（推奨）
+
+1. `rules.json` / `local_dictionary.json` を更新
+2. アプリで設定再読込
+3. 対象プロファイルでマスキング実行
+4. ルールテスターで詳細確認
+5. `test_cases.json` に回帰ケース追加
+6. `dotnet test` 実行
+
+## test_cases.json の書き方
+
+- `caseName`
+- `input`
+- `expectedOutput`
+- `expectedHitRules`
+- `description`
+- `profile`（任意）
 
 ## テスト観点（実装済み）
 
-- `rules.json` 正常読込
-- `local_dictionary.json` 正常読込
-- JSONキー欠落時の継続
-- 無効ルールのスキップ
-- priority 先勝ち
-- 同一範囲の重複置換抑止
-- ローカルルール優先
-- `nameLabels` 由来ルール生成
-- `departmentNames + 氏名` の誤検出抑止
-- 長文入力で例外が出ない
-- `test_cases.json` ロード
+- `common` のみ適用されること
+- `tax` で `common + tax` が有効なこと
+- `welfare` で `tax` ルールが混ざらないこと
+- `ByProfile` 辞書キー読込
+- `profile` 未指定ルールの `common` 扱い
+- プロファイル切替で同一入力結果が変わること
+- RuleTestRunner でケース profile が反映されること
 
 ## 実行方法（Windows）
 
@@ -141,7 +155,7 @@ dotnet run
 
 ## TODO
 
-- ルールテスターの「test_cases.json 読込→一括実行」UI。
-- profile 切替UI。
-- `highRiskFreeTextKeywords` の注意喚起表示（非置換）。
-- CI で `dotnet test` 自動実行。
+- 前回選択プロファイルの永続化。
+- test_cases の UI 一括実行。
+- プロファイル別の統計表示。
+- `highRiskFreeTextKeywords` の注意喚起表示。

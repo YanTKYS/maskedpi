@@ -4,7 +4,7 @@
       "caseName": "basic_name_label",
       "input": "氏名: 山田 太郎",
       "expectedOutput": "[氏名]",
-      "expectedHitRules": ["DynamicNameLabelRule"],
+      "expectedHitRules": ["DynamicNameLabelRule::common"],
       "description": "ラベル付き氏名",
       "profile": "common"
     },
@@ -36,7 +36,7 @@
       "caseName": "basic_date_jp",
       "input": "生年月日: 昭和60年1月2日",
       "expectedOutput": "[日付]",
-      "expectedHitRules": ["DynamicDateLabelRule"],
+      "expectedHitRules": ["DynamicDateLabelRule::common"],
       "description": "和暦日付",
       "profile": "common"
     },
@@ -52,7 +52,7 @@
       "caseName": "basic_address_label",
       "input": "住所: 東京都千代田区1-2-3",
       "expectedOutput": "[住所]",
-      "expectedHitRules": ["DynamicAddressLabelRule"],
+      "expectedHitRules": ["DynamicAddressLabelRule::common"],
       "description": "ラベル付き住所",
       "profile": "common"
     },

@@ -12,13 +12,14 @@ public sealed class RuleTestRunner
         _maskingService = maskingService;
     }
 
-    public List<RuleTestCaseResult> Run(IReadOnlyCollection<RuleDefinition> rules, IReadOnlyCollection<RuleTestCase> cases)
+    public List<RuleTestCaseResult> Run(IReadOnlyCollection<RuleDefinition> rules, IReadOnlyCollection<RuleTestCase> cases, string defaultProfile = MaskingService.CommonProfile)
     {
         var results = new List<RuleTestCaseResult>();
 
         foreach (var testCase in cases)
         {
-            var masked = _maskingService.Mask(testCase.Input, rules);
+            var profile = string.IsNullOrWhiteSpace(testCase.Profile) ? defaultProfile : testCase.Profile;
+            var masked = _maskingService.Mask(testCase.Input, rules, profile);
             var expectedRules = new HashSet<string>(testCase.ExpectedHitRules, StringComparer.Ordinal);
             var actualRules = masked.Replacements.Select(r => r.RuleName).ToHashSet(StringComparer.Ordinal);
 
@@ -33,7 +34,8 @@ public sealed class RuleTestRunner
                 ActualOutput = masked.MaskedText,
                 ExpectedHitRules = testCase.ExpectedHitRules,
                 ActualHitRules = actualRules.OrderBy(x => x).ToList(),
-                Description = testCase.Description
+                Description = testCase.Description,
+                Profile = profile
             });
         }
 
@@ -50,4 +52,5 @@ public sealed class RuleTestCaseResult
     public List<string> ExpectedHitRules { get; init; } = new();
     public List<string> ActualHitRules { get; init; } = new();
     public string Description { get; init; } = string.Empty;
+    public string Profile { get; init; } = MaskingService.CommonProfile;
 }

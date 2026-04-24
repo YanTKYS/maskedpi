@@ -15,6 +15,7 @@ public partial class MainWindow : Window
 
     private readonly string _rulePath;
     private readonly string _dictionaryPath;
+    private readonly List<string> _profiles = MaskingService.SupportedProfiles.ToList();
 
     public MainWindow()
     {
@@ -23,6 +24,11 @@ public partial class MainWindow : Window
         _maskingService = new MaskingService(new RuleLoader(), new DictionaryProvider(), new RuleEngine());
         SummaryDataGrid.ItemsSource = _summaryRows;
         TesterHitsDataGrid.ItemsSource = _testerHitRows;
+
+        ProfileComboBox.ItemsSource = _profiles;
+        TesterProfileComboBox.ItemsSource = _profiles;
+        ProfileComboBox.SelectedItem = MaskingService.CommonProfile;
+        TesterProfileComboBox.SelectedItem = MaskingService.CommonProfile;
 
         var baseDir = AppContext.BaseDirectory;
         _rulePath = Path.Combine(baseDir, "config", "rules.json");
@@ -58,7 +64,8 @@ public partial class MainWindow : Window
 
     private void MaskButton_OnClick(object sender, RoutedEventArgs e)
     {
-        var result = _maskingService.Mask(InputTextBox.Text, _runtimeRules);
+        var profile = ProfileComboBox.SelectedItem?.ToString() ?? MaskingService.CommonProfile;
+        var result = _maskingService.Mask(InputTextBox.Text, _runtimeRules, profile);
         OutputTextBox.Text = result.MaskedText;
 
         SummaryHeaderTextBlock.Text = $"置換件数: {result.TotalReplacements}";
@@ -73,7 +80,8 @@ public partial class MainWindow : Window
 
     private void TesterRunButton_OnClick(object sender, RoutedEventArgs e)
     {
-        var result = _maskingService.Mask(TesterInputTextBox.Text, _runtimeRules);
+        var profile = TesterProfileComboBox.SelectedItem?.ToString() ?? MaskingService.CommonProfile;
+        var result = _maskingService.Mask(TesterInputTextBox.Text, _runtimeRules, profile);
         TesterOutputTextBox.Text = result.MaskedText;
 
         _testerHitRows.Clear();
@@ -90,7 +98,7 @@ public partial class MainWindow : Window
                 hit.Source));
         }
 
-        TesterSummaryTextBlock.Text = $"ヒット件数: {result.TotalReplacements} / ルール数: {result.RuleHitCounts.Count}";
+        TesterSummaryTextBlock.Text = $"ヒット件数: {result.TotalReplacements} / ルール数: {result.RuleHitCounts.Count} / profile: {profile}";
     }
 
     private void ReloadButton_OnClick(object sender, RoutedEventArgs e)

@@ -24,4 +24,9 @@ public sealed class LocalDictionary
     public List<string> IdSuffixKeywords { get; set; } = new();
 
     public List<string> HighRiskFreeTextKeywords { get; set; } = new();
+
+    // 将来の業務別プロファイル対応。キー欠落時は空辞書として扱う。
+    public Dictionary<string, List<string>> DepartmentNamesByProfile { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+    public Dictionary<string, List<string>> LocalLabelsByProfile { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+    public Dictionary<string, List<string>> FacilityNamesByProfile { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 }

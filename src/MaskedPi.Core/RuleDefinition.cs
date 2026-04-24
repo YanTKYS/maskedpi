@@ -20,7 +20,8 @@ public sealed class RuleDefinition
     public string Description { get; set; } = string.Empty;
     public string? SampleText { get; set; }
 
-    // 将来の業務別ルールセット切替用。現時点では common を標準とする。
+    // 将来は複数プロファイル所属にも拡張可能なように、
+    // ここでは単一文字列を保持しつつ評価側で正規化して扱う。
     public string Profile { get; set; } = "common";
 
     // 運用補足。例: 誤検出を避ける制約、帳票名など。
