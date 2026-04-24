@@ -1,0 +1,61 @@
+<Window x:Class="MaskedPi.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MaskedPi - 生成AI入力前マスキング補助" Height="820" Width="1200" MinHeight="700" MinWidth="960">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="220" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="#FFF9E8" BorderBrush="#FFDFAF" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,8">
+            <TextBlock TextWrapping="Wrap" FontSize="14">
+                <Run Text="このツールは補助ツールです。すべての個人情報を完全に検出するものではありません。"/>
+                <LineBreak/>
+                <Run Text="生成AIへ送信する前に必ず最終確認してください。自由記述文や文脈依存情報は残る場合があります。"/>
+            </TextBlock>
+        </Border>
+
+        <TextBlock Grid.Row="1" Name="StatusTextBlock" Foreground="#444" Margin="0,0,0,8" />
+
+        <Grid Grid.Row="2" Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <GroupBox Header="入力テキスト" Grid.Column="0" Margin="0,0,8,0" Padding="8">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Bottom" Name="InputCountTextBlock" Margin="0,8,0,0" Foreground="#666" />
+                    <TextBox Name="InputTextBox" AcceptsReturn="True" AcceptsTab="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" TextWrapping="Wrap" TextChanged="InputTextBox_OnTextChanged" FontFamily="Yu Gothic UI" FontSize="14" />
+                </DockPanel>
+            </GroupBox>
+
+            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="8,0">
+                <Button Name="MaskButton" Content="マスキング実行" Width="140" Height="38" Margin="0,0,0,8" Click="MaskButton_OnClick" />
+                <Button Name="ReloadButton" Content="設定再読込" Width="140" Height="34" Margin="0,0,0,8" Click="ReloadButton_OnClick" />
+                <Button Name="CopyButton" Content="結果をコピー" Width="140" Height="34" Margin="0,0,0,8" Click="CopyButton_OnClick" />
+                <Button Name="ClearButton" Content="クリア" Width="140" Height="34" Click="ClearButton_OnClick" />
+            </StackPanel>
+
+            <GroupBox Header="マスキング後テキスト" Grid.Column="2" Margin="8,0,0,0" Padding="8">
+                <TextBox Name="OutputTextBox" AcceptsReturn="True" AcceptsTab="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" TextWrapping="Wrap" FontFamily="Yu Gothic UI" FontSize="14" />
+            </GroupBox>
+        </Grid>
+
+        <TextBlock Grid.Row="3" Name="SummaryHeaderTextBlock" FontWeight="Bold" Margin="0,0,0,8" />
+
+        <GroupBox Grid.Row="4" Header="検出結果サマリ" Padding="8">
+            <DataGrid Name="SummaryDataGrid" IsReadOnly="True" AutoGenerateColumns="False" HeadersVisibility="Column" CanUserAddRows="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="種別" Binding="{Binding CategoryLabel}" Width="2*" />
+                    <DataGridTextColumn Header="件数" Binding="{Binding Count}" Width="*" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </GroupBox>
+    </Grid>
+</Window>
