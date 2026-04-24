@@ -1,0 +1,576 @@
+{
+  "rules": [
+    {
+      "name": "Local-AtenaNumber",
+      "enabled": true,
+      "category": "LocalRule",
+      "pattern": "宛名番号[:：]?\\s*[0-9A-Za-z\\-]{3,}",
+      "replacement": "[宛名番号]",
+      "priority": 10,
+      "ignoreCase": false,
+      "profile": "common",
+      "source": "common-fixed",
+      "tags": [
+        "local",
+        "id",
+        "resident"
+      ],
+      "description": "宛名番号の典型ラベル",
+      "sampleText": "宛名番号: ATN-001122",
+      "notes": "住民系帳票で頻出"
+    },
+    {
+      "name": "Local-SetaiNumber",
+      "enabled": true,
+      "category": "LocalRule",
+      "pattern": "世帯番号[:：]?\\s*[0-9A-Za-z\\-]{3,}",
+      "replacement": "[世帯番号]",
+      "priority": 11,
+      "ignoreCase": false,
+      "profile": "resident",
+      "source": "common-fixed",
+      "tags": [
+        "local",
+        "id"
+      ],
+      "description": "世帯番号の典型ラベル",
+      "sampleText": "世帯番号: SETAI-8899",
+      "notes": "住民情報照会向け"
+    },
+    {
+      "name": "Local-ShinseiNumber",
+      "enabled": true,
+      "category": "LocalRule",
+      "pattern": "申請番号[:：]?\\s*[0-9A-Za-z\\-]{3,}",
+      "replacement": "[申請番号]",
+      "priority": 12,
+      "ignoreCase": false,
+      "profile": "common",
+      "source": "common-fixed",
+      "tags": [
+        "local",
+        "id"
+      ],
+      "description": "申請番号",
+      "sampleText": "申請番号: SINSEI-7788",
+      "notes": ""
+    },
+    {
+      "name": "Local-UketukeNumber",
+      "enabled": true,
+      "category": "LocalRule",
+      "pattern": "受付番号[:：]?\\s*[0-9A-Za-z\\-]{3,}",
+      "replacement": "[受付番号]",
+      "priority": 13,
+      "ignoreCase": false,
+      "profile": "common",
+      "source": "common-fixed",
+      "tags": [
+        "local",
+        "id"
+      ],
+      "description": "受付番号",
+      "sampleText": "受付番号: UKETUKE-2026-001",
+      "notes": ""
+    },
+    {
+      "name": "Local-SodanKanriNumber",
+      "enabled": true,
+      "category": "LocalRule",
+      "pattern": "相談管理番号[:：]?\\s*[0-9A-Za-z\\-]{3,}",
+      "replacement": "[相談管理番号]",
+      "priority": 14,
+      "ignoreCase": false,
+      "profile": "welfare",
+      "source": "common-fixed",
+      "tags": [
+        "local",
+        "id",
+        "welfare"
+      ],
+      "description": "相談管理番号",
+      "sampleText": "相談管理番号: SDN-5566",
+      "notes": ""
+    },
+    {
+      "name": "Local-InternalInquiryNumber",
+      "enabled": true,
+      "category": "LocalRule",
+      "pattern": "内部照会番号[:：]?\\s*[0-9A-Za-z\\-]{3,}",
+      "replacement": "[内部照会番号]",
+      "priority": 15,
+      "ignoreCase": false,
+      "profile": "common",
+      "source": "common-fixed",
+      "tags": [
+        "local",
+        "id"
+      ],
+      "description": "内部照会番号",
+      "sampleText": "内部照会番号: IQ-00991",
+      "notes": ""
+    },
+    {
+      "name": "Local-CaseNumber",
+      "enabled": true,
+      "category": "LocalRule",
+      "pattern": "ケース番号[:：]?\\s*[0-9A-Za-z\\-]{3,}",
+      "replacement": "[ケース番号]",
+      "priority": 16,
+      "ignoreCase": false,
+      "profile": "welfare",
+      "source": "common-fixed",
+      "tags": [
+        "local",
+        "id"
+      ],
+      "description": "ケース番号",
+      "sampleText": "ケース番号: CASE-12345",
+      "notes": ""
+    },
+    {
+      "name": "Local-GakusekiNumber",
+      "enabled": true,
+      "category": "LocalRule",
+      "pattern": "学籍番号[:：]?\\s*[0-9A-Za-z\\-]{3,}",
+      "replacement": "[学籍番号]",
+      "priority": 17,
+      "ignoreCase": false,
+      "profile": "education",
+      "source": "common-fixed",
+      "tags": [
+        "local",
+        "id",
+        "education"
+      ],
+      "description": "学籍番号",
+      "sampleText": "学籍番号: STU-24001",
+      "notes": ""
+    },
+    {
+      "name": "Local-HihokenshaKigoBangou",
+      "enabled": true,
+      "category": "LocalRule",
+      "pattern": "被保険者証記号番号[:：]?\\s*[0-9A-Za-z\\-]{3,}",
+      "replacement": "[被保険者証記号番号]",
+      "priority": 18,
+      "ignoreCase": false,
+      "profile": "welfare",
+      "source": "common-fixed",
+      "tags": [
+        "local",
+        "insurance"
+      ],
+      "description": "被保険者証記号番号",
+      "sampleText": "被保険者証記号番号: HK-1122",
+      "notes": ""
+    },
+    {
+      "name": "Local-JukyushikakushaNumber",
+      "enabled": true,
+      "category": "LocalRule",
+      "pattern": "受給資格者番号[:：]?\\s*[0-9A-Za-z\\-]{3,}",
+      "replacement": "[受給資格者番号]",
+      "priority": 19,
+      "ignoreCase": false,
+      "profile": "welfare",
+      "source": "common-fixed",
+      "tags": [
+        "local",
+        "benefit"
+      ],
+      "description": "受給資格者番号",
+      "sampleText": "受給資格者番号: BEN-2221",
+      "notes": ""
+    },
+    {
+      "name": "Local-NozeiTsuchishoNumber",
+      "enabled": true,
+      "category": "LocalRule",
+      "pattern": "納税通知書番号[:：]?\\s*[0-9A-Za-z\\-]{3,}",
+      "replacement": "[納税通知書番号]",
+      "priority": 20,
+      "ignoreCase": false,
+      "profile": "tax",
+      "source": "common-fixed",
+      "tags": [
+        "local",
+        "tax"
+      ],
+      "description": "納税通知書番号",
+      "sampleText": "納税通知書番号: TAX-NT-3321",
+      "notes": ""
+    },
+    {
+      "name": "Local-ChoteiNumber",
+      "enabled": true,
+      "category": "LocalRule",
+      "pattern": "調定番号[:：]?\\s*[0-9A-Za-z\\-]{3,}",
+      "replacement": "[調定番号]",
+      "priority": 21,
+      "ignoreCase": false,
+      "profile": "tax",
+      "source": "common-fixed",
+      "tags": [
+        "local",
+        "tax"
+      ],
+      "description": "調定番号",
+      "sampleText": "調定番号: CDT-9981",
+      "notes": ""
+    },
+    {
+      "name": "Local-ShunoNumber",
+      "enabled": true,
+      "category": "LocalRule",
+      "pattern": "収納番号[:：]?\\s*[0-9A-Za-z\\-]{3,}",
+      "replacement": "[収納番号]",
+      "priority": 22,
+      "ignoreCase": false,
+      "profile": "tax",
+      "source": "common-fixed",
+      "tags": [
+        "local",
+        "tax"
+      ],
+      "description": "収納番号",
+      "sampleText": "収納番号: SNO-7812",
+      "notes": ""
+    },
+    {
+      "name": "Local-KoteiShisanBukkenNumber",
+      "enabled": true,
+      "category": "LocalRule",
+      "pattern": "固定資産物件番号[:：]?\\s*[0-9A-Za-z\\-]{3,}",
+      "replacement": "[固定資産物件番号]",
+      "priority": 23,
+      "ignoreCase": false,
+      "profile": "tax",
+      "source": "common-fixed",
+      "tags": [
+        "local",
+        "asset"
+      ],
+      "description": "固定資産物件番号",
+      "sampleText": "固定資産物件番号: AST-556677",
+      "notes": ""
+    },
+    {
+      "name": "Local-SuidoRiyoshaNumber",
+      "enabled": true,
+      "category": "LocalRule",
+      "pattern": "水道使用者番号[:：]?\\s*[0-9A-Za-z\\-]{3,}",
+      "replacement": "[水道使用者番号]",
+      "priority": 24,
+      "ignoreCase": false,
+      "profile": "common",
+      "source": "common-fixed",
+      "tags": [
+        "local",
+        "water"
+      ],
+      "description": "水道使用者番号",
+      "sampleText": "水道使用者番号: WTR-445566",
+      "notes": ""
+    },
+    {
+      "name": "Local-KaigoNinteiNumber",
+      "enabled": true,
+      "category": "LocalRule",
+      "pattern": "介護認定番号[:：]?\\s*[0-9A-Za-z\\-]{3,}",
+      "replacement": "[介護認定番号]",
+      "priority": 25,
+      "ignoreCase": false,
+      "profile": "welfare",
+      "source": "common-fixed",
+      "tags": [
+        "local",
+        "care"
+      ],
+      "description": "介護認定番号",
+      "sampleText": "介護認定番号: CARE-1212",
+      "notes": ""
+    },
+    {
+      "name": "Local-JidoFuyoTeateNumber",
+      "enabled": true,
+      "category": "LocalRule",
+      "pattern": "児童扶養手当受給者番号[:：]?\\s*[0-9A-Za-z\\-]{3,}",
+      "replacement": "[児童扶養手当受給者番号]",
+      "priority": 26,
+      "ignoreCase": false,
+      "profile": "welfare",
+      "source": "common-fixed",
+      "tags": [
+        "local",
+        "child"
+      ],
+      "description": "児童扶養手当受給者番号",
+      "sampleText": "児童扶養手当受給者番号: JDT-9988",
+      "notes": ""
+    },
+    {
+      "name": "Local-ShogaiFukushiJukyushaNumber",
+      "enabled": true,
+      "category": "LocalRule",
+      "pattern": "障害福祉受給者番号[:：]?\\s*[0-9A-Za-z\\-]{3,}",
+      "replacement": "[障害福祉受給者番号]",
+      "priority": 27,
+      "ignoreCase": false,
+      "profile": "welfare",
+      "source": "common-fixed",
+      "tags": [
+        "local",
+        "disability"
+      ],
+      "description": "障害福祉受給者番号",
+      "sampleText": "障害福祉受給者番号: DSB-9910",
+      "notes": ""
+    },
+    {
+      "name": "Local-KenshinJushinkenNumber",
+      "enabled": true,
+      "category": "LocalRule",
+      "pattern": "健診受診券番号[:：]?\\s*[0-9A-Za-z\\-]{3,}",
+      "replacement": "[健診受診券番号]",
+      "priority": 28,
+      "ignoreCase": false,
+      "profile": "welfare",
+      "source": "common-fixed",
+      "tags": [
+        "local",
+        "health"
+      ],
+      "description": "健診受診券番号",
+      "sampleText": "健診受診券番号: KEN-1001",
+      "notes": ""
+    },
+    {
+      "name": "Local-GakkoMeiboNumber",
+      "enabled": true,
+      "category": "LocalRule",
+      "pattern": "学校名簿番号[:：]?\\s*[0-9A-Za-z\\-]{3,}",
+      "replacement": "[学校名簿番号]",
+      "priority": 29,
+      "ignoreCase": false,
+      "profile": "education",
+      "source": "common-fixed",
+      "tags": [
+        "local",
+        "education"
+      ],
+      "description": "学校名簿番号",
+      "sampleText": "学校名簿番号: SCH-8822",
+      "notes": ""
+    },
+    {
+      "name": "Local-TainoSeiriNumber",
+      "enabled": true,
+      "category": "LocalRule",
+      "pattern": "滞納整理番号[:：]?\\s*[0-9A-Za-z\\-]{3,}",
+      "replacement": "[滞納整理番号]",
+      "priority": 29,
+      "ignoreCase": false,
+      "profile": "tax",
+      "source": "common-fixed",
+      "tags": [
+        "local",
+        "tax"
+      ],
+      "description": "滞納整理番号",
+      "sampleText": "滞納整理番号: ARR-1120",
+      "notes": ""
+    },
+    {
+      "name": "Local-YoboSesshuNumber",
+      "enabled": true,
+      "category": "LocalRule",
+      "pattern": "予防接種番号[:：]?\\s*[0-9A-Za-z\\-]{3,}",
+      "replacement": "[予防接種番号]",
+      "priority": 29,
+      "ignoreCase": false,
+      "profile": "welfare",
+      "source": "common-fixed",
+      "tags": [
+        "local",
+        "health"
+      ],
+      "description": "予防接種番号",
+      "sampleText": "予防接種番号: VAC-7711",
+      "notes": ""
+    },
+    {
+      "name": "Attribute-BirthDate-Labeled",
+      "enabled": true,
+      "category": "Date",
+      "pattern": "(?:生年月日|出生年月日)[:：]\\s*(?:\\d{4}年\\d{1,2}月\\d{1,2}日|\\d{4}[/-]\\d{1,2}[/-]\\d{1,2}|(?:令和|平成|昭和)(?:元|\\d{1,2})年\\d{1,2}月\\d{1,2}日)",
+      "replacement": "[生年月日]",
+      "priority": 31,
+      "ignoreCase": false,
+      "profile": "common",
+      "source": "common-fixed",
+      "tags": [
+        "attribute",
+        "birthdate"
+      ],
+      "description": "ラベル付き生年月日",
+      "sampleText": "生年月日：1985年3月15日",
+      "notes": "括弧内や読点区切りでもマスク対象"
+    },
+    {
+      "name": "Attribute-Gender-Labeled",
+      "enabled": true,
+      "category": "Other",
+      "pattern": "性別[:：]\\s*(?:男性|女性|男|女|その他|不明)",
+      "replacement": "[性別]",
+      "priority": 32,
+      "ignoreCase": false,
+      "profile": "common",
+      "source": "common-fixed",
+      "tags": [
+        "attribute",
+        "gender"
+      ],
+      "description": "ラベル付き性別",
+      "sampleText": "性別：男性",
+      "notes": "値語彙は保守的に限定"
+    },
+    {
+      "name": "Phone-General",
+      "enabled": true,
+      "category": "Phone",
+      "pattern": "(?:0\\d{1,4}-?\\d{1,4}-?\\d{3,4})",
+      "replacement": "[電話番号]",
+      "priority": 40,
+      "ignoreCase": false,
+      "profile": "common",
+      "source": "common-fixed",
+      "tags": [
+        "phone"
+      ],
+      "description": "固定・携帯電話番号（ハイフン有無対応）",
+      "sampleText": "09012345678",
+      "notes": "桁数不正は検出しない"
+    },
+    {
+      "name": "Email-General",
+      "enabled": true,
+      "category": "Email",
+      "pattern": "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}",
+      "replacement": "[メール]",
+      "priority": 41,
+      "ignoreCase": true,
+      "profile": "common",
+      "source": "common-fixed",
+      "tags": [
+        "email"
+      ],
+      "description": "一般的なメール形式",
+      "sampleText": "test.user@example.com",
+      "notes": ""
+    },
+    {
+      "name": "PostalCode-General",
+      "enabled": true,
+      "category": "PostalCode",
+      "pattern": "\\b\\d{3}-?\\d{4}\\b",
+      "replacement": "[郵便番号]",
+      "priority": 42,
+      "ignoreCase": false,
+      "profile": "common",
+      "source": "common-fixed",
+      "tags": [
+        "postal"
+      ],
+      "description": "郵便番号",
+      "sampleText": "123-4567",
+      "notes": ""
+    },
+    {
+      "name": "Date-JapaneseEra",
+      "enabled": true,
+      "category": "Date",
+      "pattern": "(?:令和|平成|昭和)(?:元|\\d{1,2})年\\d{1,2}月\\d{1,2}日",
+      "replacement": "[日付]",
+      "priority": 50,
+      "ignoreCase": false,
+      "profile": "common",
+      "source": "common-fixed",
+      "tags": [
+        "date"
+      ],
+      "description": "和暦日付",
+      "sampleText": "昭和60年1月2日",
+      "notes": ""
+    },
+    {
+      "name": "Date-Western",
+      "enabled": true,
+      "category": "Date",
+      "pattern": "\\b\\d{4}[/-]\\d{1,2}[/-]\\d{1,2}\\b",
+      "replacement": "[日付]",
+      "priority": 51,
+      "ignoreCase": false,
+      "profile": "common",
+      "source": "common-fixed",
+      "tags": [
+        "date"
+      ],
+      "description": "西暦日付",
+      "sampleText": "2026/04/24",
+      "notes": ""
+    },
+    {
+      "name": "Address-Conservative",
+      "enabled": true,
+      "category": "Address",
+      "pattern": "(?:東京都|北海道|(?:京都|大阪)府|..県).{1,20}(?:市|区|町|村).{0,30}(?:\\d{1,4}-\\d{1,4}(?:-\\d{1,4})?|\\d{1,4}丁目\\d{1,4}番\\d{1,4}号)",
+      "replacement": "[住所]",
+      "priority": 60,
+      "ignoreCase": false,
+      "profile": "common",
+      "source": "common-fixed",
+      "tags": [
+        "address"
+      ],
+      "description": "保守的な自由文住所候補",
+      "sampleText": "東京都千代田区1-2-3",
+      "notes": "ラベル付き住所の後段で適用"
+    },
+    {
+      "name": "Address-WithBuilding-Conservative",
+      "enabled": true,
+      "category": "Address",
+      "pattern": "(?:東京都|北海道|(?:京都|大阪)府|..県).{1,20}(?:市|区|町|村).{0,30}(?:\\d{1,4}-\\d{1,4}(?:-\\d{1,4})?|\\d{1,4}丁目\\d{1,4}番\\d{1,4}号|\\d{1,4}番地)(?:\\s*[一-龥ぁ-んァ-ヶA-Za-z0-9・\\-]{1,30}(?:ハイツ|マンション|コーポ|ビル|アパート|荘)\\s*[A-Za-z]?[-]?\\d{2,4}(?:号室)?|\\s*\\d{1,4}号室)?",
+      "replacement": "[住所]",
+      "priority": 61,
+      "ignoreCase": false,
+      "profile": "common",
+      "source": "common-fixed",
+      "tags": [
+        "address",
+        "building"
+      ],
+      "description": "建物名・号室を含む保守的住所",
+      "sampleText": "沖縄県那覇市おもろまち2丁目3番4号 グリーンハイツ501号室",
+      "notes": "番地直後の建物名のみ補完"
+    },
+    {
+      "name": "Local-LotNumber-Conservative",
+      "enabled": true,
+      "category": "LocalRule",
+      "pattern": "\\d{1,3}丁目\\d{1,4}番\\d{1,4}号|\\d{1,4}番地",
+      "replacement": "[地番候補]",
+      "priority": 80,
+      "ignoreCase": false,
+      "profile": "common",
+      "source": "common-fixed",
+      "tags": [
+        "lot"
+      ],
+      "description": "過検出を抑えた地番候補",
+      "sampleText": "3丁目12番4号",
+      "notes": "補助ルールとして後段適用"
+    }
+  ]
+}
