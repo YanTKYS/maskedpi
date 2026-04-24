@@ -1,0 +1,54 @@
+name: Manual Build
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      # 1) Repository checkout
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2) .NET 8 setup
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # 3) Restore dependencies
+      - name: Restore
+        run: dotnet restore src/MaskedPi.App/MaskedPi.App.csproj
+
+      # 4) Build (Release)
+      - name: Build
+        run: dotnet build src/MaskedPi.App/MaskedPi.App.csproj --configuration Release --no-restore
+
+      # 5) Publish WPF app (self-contained, win-x64)
+      - name: Publish
+        run: >
+          dotnet publish src/MaskedPi.App/MaskedPi.App.csproj
+          --configuration Release
+          --runtime win-x64
+          --self-contained true
+          --output artifacts/publish
+
+      # 6) Zip publish outputs
+      - name: Package ZIP
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          Compress-Archive -Path artifacts/publish/* -DestinationPath artifacts/maskedpi-build-win-x64-selfcontained-v0.1.0.zip -Force
+
+      # 7) Upload artifact (for device verification)
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: maskedpi-build-win-x64-selfcontained-v0.1.0
+          path: artifacts/maskedpi-build-win-x64-selfcontained-v0.1.0.zip
+          if-no-files-found: error

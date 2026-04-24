@@ -1,0 +1,180 @@
+{
+  "cases": [
+    {
+      "caseName": "basic_name_label",
+      "input": "氏名: 山田 太郎",
+      "expectedOutput": "[氏名]",
+      "expectedHitRules": ["DynamicNameLabelRule::common"],
+      "description": "ラベル付き氏名",
+      "profile": "common"
+    },
+    {
+      "caseName": "basic_phone",
+      "input": "電話番号 090-1234-5678",
+      "expectedOutput": "電話番号 [電話番号]",
+      "expectedHitRules": ["Phone-General"],
+      "description": "電話番号",
+      "profile": "common"
+    },
+    {
+      "caseName": "basic_email",
+      "input": "mail: test.user@example.com",
+      "expectedOutput": "mail: [メール]",
+      "expectedHitRules": ["Email-General"],
+      "description": "メール",
+      "profile": "common"
+    },
+    {
+      "caseName": "basic_postal",
+      "input": "〒123-4567",
+      "expectedOutput": "〒[郵便番号]",
+      "expectedHitRules": ["PostalCode-General"],
+      "description": "郵便番号",
+      "profile": "common"
+    },
+    {
+      "caseName": "basic_date_jp",
+      "input": "生年月日: 昭和60年1月2日",
+      "expectedOutput": "[日付]",
+      "expectedHitRules": ["DynamicDateLabelRule::common"],
+      "description": "和暦日付",
+      "profile": "common"
+    },
+    {
+      "caseName": "basic_date_western",
+      "input": "2026/04/24",
+      "expectedOutput": "[日付]",
+      "expectedHitRules": ["Date-Western"],
+      "description": "西暦日付",
+      "profile": "common"
+    },
+    {
+      "caseName": "basic_address_label",
+      "input": "住所: 東京都千代田区1-2-3",
+      "expectedOutput": "[住所]",
+      "expectedHitRules": ["DynamicAddressLabelRule::common"],
+      "description": "ラベル付き住所",
+      "profile": "common"
+    },
+    {
+      "caseName": "local_atena",
+      "input": "宛名番号: ATN-001122",
+      "expectedOutput": "[宛名番号]",
+      "expectedHitRules": ["Local-AtenaNumber"],
+      "description": "宛名番号",
+      "profile": "resident"
+    },
+    {
+      "caseName": "local_setai",
+      "input": "世帯番号: SETAI-8899",
+      "expectedOutput": "[世帯番号]",
+      "expectedHitRules": ["Local-SetaiNumber"],
+      "description": "世帯番号",
+      "profile": "resident"
+    },
+    {
+      "caseName": "local_shinsei",
+      "input": "申請番号: SINSEI-7788",
+      "expectedOutput": "[申請番号]",
+      "expectedHitRules": ["Local-ShinseiNumber"],
+      "description": "申請番号",
+      "profile": "common"
+    },
+    {
+      "caseName": "local_uketuke",
+      "input": "受付番号: UKETUKE-2026-001",
+      "expectedOutput": "[受付番号]",
+      "expectedHitRules": ["Local-UketukeNumber"],
+      "description": "受付番号",
+      "profile": "common"
+    },
+    {
+      "caseName": "local_case",
+      "input": "ケース番号: CASE-12345",
+      "expectedOutput": "[ケース番号]",
+      "expectedHitRules": ["Local-CaseNumber"],
+      "description": "ケース番号",
+      "profile": "welfare"
+    },
+    {
+      "caseName": "local_gakuseki",
+      "input": "学籍番号: STU-24001",
+      "expectedOutput": "[学籍番号]",
+      "expectedHitRules": ["Local-GakusekiNumber"],
+      "description": "学籍番号",
+      "profile": "education"
+    },
+    {
+      "caseName": "local_water",
+      "input": "水道使用者番号: WTR-445566",
+      "expectedOutput": "[水道使用者番号]",
+      "expectedHitRules": ["Local-SuidoRiyoshaNumber"],
+      "description": "水道使用者番号",
+      "profile": "common"
+    },
+    {
+      "caseName": "local_asset",
+      "input": "固定資産物件番号: AST-556677",
+      "expectedOutput": "[固定資産物件番号]",
+      "expectedHitRules": ["Local-KoteiShisanBukkenNumber"],
+      "description": "固定資産物件番号",
+      "profile": "tax"
+    },
+    {
+      "caseName": "fp_department_tanto",
+      "input": "市民課 担当",
+      "expectedOutput": "市民課 担当",
+      "expectedHitRules": [],
+      "description": "誤検出抑制: 担当のみ",
+      "profile": "common"
+    },
+    {
+      "caseName": "fp_department_kakui",
+      "input": "福祉課 各位",
+      "expectedOutput": "福祉課 各位",
+      "expectedHitRules": [],
+      "description": "誤検出抑制: 各位",
+      "profile": "common"
+    },
+    {
+      "caseName": "fp_department_onchu",
+      "input": "税務課 御中",
+      "expectedOutput": "税務課 御中",
+      "expectedHitRules": [],
+      "description": "誤検出抑制: 御中",
+      "profile": "common"
+    },
+    {
+      "caseName": "fp_tanto_ichido",
+      "input": "担当者一同",
+      "expectedOutput": "担当者一同",
+      "expectedHitRules": [],
+      "description": "誤検出抑制: 一同",
+      "profile": "common"
+    },
+    {
+      "caseName": "fp_department_shusa",
+      "input": "学校教育課 主査",
+      "expectedOutput": "学校教育課 主査",
+      "expectedHitRules": [],
+      "description": "誤検出抑制: 主査",
+      "profile": "education"
+    },
+    {
+      "caseName": "fp_chiyoda_city_office",
+      "input": "東京都千代田区役所",
+      "expectedOutput": "東京都千代田区役所",
+      "expectedHitRules": [],
+      "description": "施設名に近い語で誤検出しない",
+      "profile": "common"
+    },
+    {
+      "caseName": "fp_general_noun_chain",
+      "input": "申請情報確認連絡事項",
+      "expectedOutput": "申請情報確認連絡事項",
+      "expectedHitRules": [],
+      "description": "氏名ではない一般名詞連続",
+      "profile": "common"
+    }
+  ]
+}

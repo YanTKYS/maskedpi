@@ -1,0 +1,90 @@
+name: Manual Release Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Git tag (e.g. v0.1.0)'
+        required: true
+        default: 'v0.1.0'
+      release_notes_path:
+        description: 'Committed release notes markdown path'
+        required: true
+        default: 'release-notes/v0.1.0.md'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      # 1) Checkout full history/tags for safe tag existence check
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 2) Setup .NET 8
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # 3) Validate tag does not already exist (safe-by-default)
+      - name: Validate tag does not exist
+        shell: pwsh
+        run: |
+          $tag = "${{ github.event.inputs.version }}"
+          git fetch --tags --force
+          $exists = git tag -l $tag
+          if ($exists) {
+            throw "Tag already exists: $tag. Aborting release to avoid overwrite."
+          }
+
+      # 4) Parse committed release notes (# title / body)
+      - name: Parse release notes
+        id: notes
+        shell: pwsh
+        run: |
+          ./scripts/parse-release-notes.ps1 -Path "${{ github.event.inputs.release_notes_path }}"
+
+      # 5) Restore
+      - name: Restore
+        run: dotnet restore src/MaskedPi.App/MaskedPi.App.csproj
+
+      # 6) Build
+      - name: Build
+        run: dotnet build src/MaskedPi.App/MaskedPi.App.csproj --configuration Release --no-restore
+
+      # 7) Publish
+      - name: Publish
+        run: >
+          dotnet publish src/MaskedPi.App/MaskedPi.App.csproj
+          --configuration Release
+          --runtime win-x64
+          --self-contained true
+          --output artifacts/publish
+
+      # 8) Zip publish outputs
+      - name: Package release ZIP
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          $zipName = "maskedpi-${{ github.event.inputs.version }}-win-x64-selfcontained.zip"
+          Compress-Archive -Path artifacts/publish/* -DestinationPath "artifacts/$zipName" -Force
+          "zip_path=artifacts/$zipName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+        id: pack
+
+      # 9) Create GitHub Release and 10) upload zip asset
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          name: ${{ steps.notes.outputs.title }}
+          body_path: ${{ steps.notes.outputs.body_path }}
+          files: ${{ steps.pack.outputs.zip_path }}
+          draft: false
+          prerelease: false
+          fail_on_unmatched_files: true
