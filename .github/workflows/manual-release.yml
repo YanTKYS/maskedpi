@@ -64,7 +64,7 @@ jobs:
           dotnet publish src/MaskedPi.App/MaskedPi.App.csproj
           --configuration Release
           --runtime win-x64
-          --self-contained false
+          --self-contained true
           --output artifacts/publish
 
       # 8) Zip publish outputs
@@ -72,7 +72,7 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path artifacts | Out-Null
-          $zipName = "maskedpi-${{ github.event.inputs.version }}-win-x64.zip"
+          $zipName = "maskedpi-${{ github.event.inputs.version }}-win-x64-selfcontained.zip"
           Compress-Archive -Path artifacts/publish/* -DestinationPath "artifacts/$zipName" -Force
           "zip_path=artifacts/$zipName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
         id: pack

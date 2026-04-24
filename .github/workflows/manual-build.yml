@@ -29,13 +29,13 @@ jobs:
       - name: Build
         run: dotnet build src/MaskedPi.App/MaskedPi.App.csproj --configuration Release --no-restore
 
-      # 5) Publish WPF app (framework-dependent, win-x64)
+      # 5) Publish WPF app (self-contained, win-x64)
       - name: Publish
         run: >
           dotnet publish src/MaskedPi.App/MaskedPi.App.csproj
           --configuration Release
           --runtime win-x64
-          --self-contained false
+          --self-contained true
           --output artifacts/publish
 
       # 6) Zip publish outputs
@@ -43,12 +43,12 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path artifacts | Out-Null
-          Compress-Archive -Path artifacts/publish/* -DestinationPath artifacts/maskedpi-build-v0.1.0.zip -Force
+          Compress-Archive -Path artifacts/publish/* -DestinationPath artifacts/maskedpi-build-win-x64-selfcontained-v0.1.0.zip -Force
 
       # 7) Upload artifact (for device verification)
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: maskedpi-build-v0.1.0
-          path: artifacts/maskedpi-build-v0.1.0.zip
+          name: maskedpi-build-win-x64-selfcontained-v0.1.0
+          path: artifacts/maskedpi-build-win-x64-selfcontained-v0.1.0.zip
           if-no-files-found: error

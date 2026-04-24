@@ -11,6 +11,28 @@
 - ルールテスター
 - 業務別プロファイル切替
 - GitHub Actions 手動ビルド / 手動リリース
+- **self-contained 配布（win-x64）**
+
+---
+
+## self-contained 配布について（重要）
+
+本リポジトリの GitHub Actions 配布物は、`MaskedPi.App` を **self-contained** で publish します。
+
+- 対象: `win-x64`
+- 目的: 対象端末に `.NET Desktop Runtime` が未導入でも起動できるようにする
+- 方針: 初回は安定性優先（単一ファイル化・trim は無効）
+
+### framework-dependent から変更した理由
+
+対象端末で `.NET Desktop Runtime` が未導入の場合、framework-dependent 配布では起動時に runtime インストール要求が出るためです。
+
+> `txt2voice` など他ツールが同端末で動作するケースは、実行ファイルに runtime を同梱した配布方式（self-contained）を採用している可能性があります。
+
+### 注意
+
+- self-contained 配布は成果物サイズが大きくなります（想定内）。
+- 初回は `win-x64` 固定です。将来 `win-x86` 等を追加可能な構成です。
 
 ---
 
@@ -84,14 +106,14 @@ README.md
 2. setup-dotnet (8.0.x)
 3. restore
 4. build (Release)
-5. publish (`win-x64`, `self-contained=false`)
+5. publish (`win-x64`, `self-contained=true`)
 6. zip 化
 7. artifact upload
 
 ### 成果物
 
-- artifact 名: `maskedpi-build-v0.1.0`
-- ZIP をダウンロードして実機確認
+- artifact 名: `maskedpi-build-win-x64-selfcontained-v0.1.0`
+- ZIP をダウンロードし展開後、`MaskedPi.App.exe` を起動
 
 ---
 
@@ -112,8 +134,8 @@ README.md
 4. release-notes を PowerShell で解析
 5. restore
 6. build
-7. publish
-8. zip 化
+7. publish (`win-x64`, `self-contained=true`)
+8. zip 化（`maskedpi-vX.Y.Z-win-x64-selfcontained.zip`）
 9. GitHub Release 作成
 10. zip 添付
 
@@ -137,20 +159,20 @@ README.md
 - 1行目: H1 (`# ...`) → Release title
 - 2行目以降: Release body
 
-例:
+---
 
-```md
-# MaskedPi v0.1.0
+## 実機確認手順（runtime 未導入端末を想定）
 
-初回プロトタイプ版です。
+1. Actions の成果物または Release Asset の zip を取得
+2. 任意フォルダへ展開
+3. `MaskedPi.App.exe` を起動
+4. アプリ起動後、設定読込ステータスを確認
 
-## 主な追加内容
-- ...
-```
+> 設定ファイルは実行フォルダ配下 `config/` を読みます（`AppContext.BaseDirectory` 基準）。
 
 ---
 
-## ローカル実行（Windows）
+## ローカル実行（Windows / 開発用）
 
 ```powershell
 cd src/MaskedPi.App
@@ -173,3 +195,4 @@ dotnet run
 - test_cases の UI 一括実行
 - profile 別統計の可視化
 - `highRiskFreeTextKeywords` の注意喚起UI
+- 将来オプションとして single-file 配布の評価（今回未対応）
