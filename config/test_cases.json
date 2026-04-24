@@ -1,0 +1,282 @@
+{
+  "cases": [
+    {
+      "caseName": "basic_name_label",
+      "input": "氏名: 山田 太郎",
+      "expectedOutput": "[氏名]",
+      "expectedHitRules": [
+        "DynamicNameLabelRule::common"
+      ],
+      "description": "ラベル付き氏名",
+      "profile": "common"
+    },
+    {
+      "caseName": "basic_phone",
+      "input": "電話番号 090-1234-5678",
+      "expectedOutput": "電話番号 [電話番号]",
+      "expectedHitRules": [
+        "Phone-General"
+      ],
+      "description": "電話番号",
+      "profile": "common"
+    },
+    {
+      "caseName": "basic_email",
+      "input": "mail: test.user@example.com",
+      "expectedOutput": "mail: [メール]",
+      "expectedHitRules": [
+        "Email-General"
+      ],
+      "description": "メール",
+      "profile": "common"
+    },
+    {
+      "caseName": "basic_postal",
+      "input": "〒123-4567",
+      "expectedOutput": "〒[郵便番号]",
+      "expectedHitRules": [
+        "PostalCode-General"
+      ],
+      "description": "郵便番号",
+      "profile": "common"
+    },
+    {
+      "caseName": "basic_date_jp",
+      "input": "生年月日: 昭和60年1月2日",
+      "expectedOutput": "[日付]",
+      "expectedHitRules": [
+        "DynamicDateLabelRule::common"
+      ],
+      "description": "和暦日付",
+      "profile": "common"
+    },
+    {
+      "caseName": "basic_date_western",
+      "input": "2026/04/24",
+      "expectedOutput": "[日付]",
+      "expectedHitRules": [
+        "Date-Western"
+      ],
+      "description": "西暦日付",
+      "profile": "common"
+    },
+    {
+      "caseName": "basic_address_label",
+      "input": "住所: 東京都千代田区1-2-3",
+      "expectedOutput": "[住所]",
+      "expectedHitRules": [
+        "DynamicAddressLabelRule::common"
+      ],
+      "description": "ラベル付き住所",
+      "profile": "common"
+    },
+    {
+      "caseName": "local_atena",
+      "input": "宛名番号: ATN-001122",
+      "expectedOutput": "[宛名番号]",
+      "expectedHitRules": [
+        "Local-AtenaNumber"
+      ],
+      "description": "宛名番号",
+      "profile": "resident"
+    },
+    {
+      "caseName": "local_setai",
+      "input": "世帯番号: SETAI-8899",
+      "expectedOutput": "[世帯番号]",
+      "expectedHitRules": [
+        "Local-SetaiNumber"
+      ],
+      "description": "世帯番号",
+      "profile": "resident"
+    },
+    {
+      "caseName": "local_shinsei",
+      "input": "申請番号: SINSEI-7788",
+      "expectedOutput": "[申請番号]",
+      "expectedHitRules": [
+        "Local-ShinseiNumber"
+      ],
+      "description": "申請番号",
+      "profile": "common"
+    },
+    {
+      "caseName": "local_uketuke",
+      "input": "受付番号: UKETUKE-2026-001",
+      "expectedOutput": "[受付番号]",
+      "expectedHitRules": [
+        "Local-UketukeNumber"
+      ],
+      "description": "受付番号",
+      "profile": "common"
+    },
+    {
+      "caseName": "local_case",
+      "input": "ケース番号: CASE-12345",
+      "expectedOutput": "[ケース番号]",
+      "expectedHitRules": [
+        "Local-CaseNumber"
+      ],
+      "description": "ケース番号",
+      "profile": "welfare"
+    },
+    {
+      "caseName": "local_gakuseki",
+      "input": "学籍番号: STU-24001",
+      "expectedOutput": "[学籍番号]",
+      "expectedHitRules": [
+        "Local-GakusekiNumber"
+      ],
+      "description": "学籍番号",
+      "profile": "education"
+    },
+    {
+      "caseName": "local_water",
+      "input": "水道使用者番号: WTR-445566",
+      "expectedOutput": "[水道使用者番号]",
+      "expectedHitRules": [
+        "Local-SuidoRiyoshaNumber"
+      ],
+      "description": "水道使用者番号",
+      "profile": "common"
+    },
+    {
+      "caseName": "local_asset",
+      "input": "固定資産物件番号: AST-556677",
+      "expectedOutput": "[固定資産物件番号]",
+      "expectedHitRules": [
+        "Local-KoteiShisanBukkenNumber"
+      ],
+      "description": "固定資産物件番号",
+      "profile": "tax"
+    },
+    {
+      "caseName": "fp_department_tanto",
+      "input": "市民課 担当",
+      "expectedOutput": "市民課 担当",
+      "expectedHitRules": [],
+      "description": "誤検出抑制: 担当のみ",
+      "profile": "common"
+    },
+    {
+      "caseName": "fp_department_kakui",
+      "input": "福祉課 各位",
+      "expectedOutput": "福祉課 各位",
+      "expectedHitRules": [],
+      "description": "誤検出抑制: 各位",
+      "profile": "common"
+    },
+    {
+      "caseName": "fp_department_onchu",
+      "input": "税務課 御中",
+      "expectedOutput": "税務課 御中",
+      "expectedHitRules": [],
+      "description": "誤検出抑制: 御中",
+      "profile": "common"
+    },
+    {
+      "caseName": "fp_tanto_ichido",
+      "input": "担当者一同",
+      "expectedOutput": "担当者一同",
+      "expectedHitRules": [],
+      "description": "誤検出抑制: 一同",
+      "profile": "common"
+    },
+    {
+      "caseName": "fp_department_shusa",
+      "input": "学校教育課 主査",
+      "expectedOutput": "学校教育課 主査",
+      "expectedHitRules": [],
+      "description": "誤検出抑制: 主査",
+      "profile": "education"
+    },
+    {
+      "caseName": "fp_chiyoda_city_office",
+      "input": "東京都千代田区役所",
+      "expectedOutput": "東京都千代田区役所",
+      "expectedHitRules": [],
+      "description": "施設名に近い語で誤検出しない",
+      "profile": "common"
+    },
+    {
+      "caseName": "fp_general_noun_chain",
+      "input": "申請情報確認連絡事項",
+      "expectedOutput": "申請情報確認連絡事項",
+      "expectedHitRules": [],
+      "description": "氏名ではない一般名詞連続",
+      "profile": "common"
+    },
+    {
+      "caseName": "transfer_notification_context",
+      "input": "令和7年4月1日付けで、佐藤 太郎（生年月日：1985年3月15日、性別：男性）より転入届が提出。住所は沖縄県那覇市おもろまち2丁目3番4号 グリーンハイツ501号室です。",
+      "expectedOutput": "[日付]付けで、[氏名]（[個人属性]、[個人属性]）より転入届が提出。住所は[住所]です。",
+      "expectedHitRules": [],
+      "description": "転入届文（氏名文脈/個人属性/住所建物名）",
+      "profile": "resident"
+    },
+    {
+      "caseName": "moving_notification_context",
+      "input": "田中 花子（生年月日：1990年6月10日）から転居届が提出。現住所：沖縄県浦添市1丁目2番3号 サンライズ那覇 201号室",
+      "expectedOutput": "[氏名]（[個人属性]）から転居届が提出。[住所]",
+      "expectedHitRules": [],
+      "description": "転居届文",
+      "profile": "resident"
+    },
+    {
+      "caseName": "nursery_application_context",
+      "input": "申請者：鈴木 一郎（続柄：父、性別：男性）について保育申請を受理。",
+      "expectedOutput": "[氏名]（[個人属性]、[個人属性]）について保育申請を受理。",
+      "expectedHitRules": [],
+      "description": "保育申請文",
+      "profile": "welfare"
+    },
+    {
+      "caseName": "welfare_consultation_context",
+      "input": "相談者：高橋 美咲（国籍：日本、電話番号：090-1234-5678）より福祉相談。",
+      "expectedOutput": "[氏名]（[個人属性]、[個人属性]）より福祉相談。",
+      "expectedHitRules": [],
+      "description": "福祉相談文",
+      "profile": "welfare"
+    },
+    {
+      "caseName": "school_support_application_context",
+      "input": "生徒氏名：渡辺 太郎（生年月日：2010年4月2日、性別：男）に係る就学援助申請。",
+      "expectedOutput": "[氏名]（[個人属性]、[個人属性]）に係る就学援助申請。",
+      "expectedHitRules": [],
+      "description": "学校就学援助申請文",
+      "profile": "education"
+    },
+    {
+      "caseName": "fp_building_only_text",
+      "input": "グリーンハイツ501号室は改修予定です。",
+      "expectedOutput": "グリーンハイツ501号室は改修予定です。",
+      "expectedHitRules": [],
+      "description": "建物名のみ一般文",
+      "profile": "common"
+    },
+    {
+      "caseName": "fp_two_japanese_words",
+      "input": "市民 相談",
+      "expectedOutput": "市民 相談",
+      "expectedHitRules": [],
+      "description": "氏名ではない日本語2語",
+      "profile": "common"
+    },
+    {
+      "caseName": "fp_department_general_word",
+      "input": "税務課 連絡",
+      "expectedOutput": "税務課 連絡",
+      "expectedHitRules": [],
+      "description": "部署名+一般語",
+      "profile": "tax"
+    },
+    {
+      "caseName": "fp_gender_word_only",
+      "input": "性別に関する統計を確認した。",
+      "expectedOutput": "性別に関する統計を確認した。",
+      "expectedHitRules": [],
+      "description": "性別単語のみの説明文",
+      "profile": "common"
+    }
+  ]
+}
