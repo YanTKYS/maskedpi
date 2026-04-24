@@ -1,21 +1,27 @@
-# MaskedPi (WPF 最小実装)
+# MaskedPi (WPF ローカル個人情報マスキング補助ツール)
 
 地方自治体職員が生成AIへ貼り付ける前に、個人情報・自治体固有IDをルールベースで簡易マスキングするローカル補助ツールです。
 
-## 実装方針（最小実装）
+## 実装方針（改善版）
 
-- **目的特化**: 「完全防止」ではなく、貼り付け前のワンクッションを短時間で提供。
-- **閉域前提**: 外部APIなし、ローカルファイル（`rules.json` / `local_dictionary.json`）のみ使用。
-- **保守性重視**: ルールはJSONで外部化し、コード修正なしで追加・無効化可能。
-- **誤検出抑制**: 氏名・住所は保守的なルールを採用し、番号系・ラベル付き項目を優先。
-- **分離設計**: UI (`MaskedPi.App`) と検出ロジック (`MaskedPi.Core`) を分離。
+- **設定主導**: 固定ルールは `config/rules.json`、自治体差分は `config/local_dictionary.json` を編集して育成。
+- **誤検出抑制**: ラベル付き表現を優先し、曖昧な自由文検出は保守的に扱う。
+- **責務分離**: UI (`MaskedPi.App`) と検出ロジック (`MaskedPi.Core`) を分離。
+- **将来拡張**: `profile`・`source`・`tags` を持つルール設計で業務別管理を見据える。
 
-## 採用技術
+## 主な追加点
 
-- C# / .NET 8
-- WPF (Windowsデスクトップ)
-- `System.Text.Json`（設定読込）
-- `Regex`（タイムアウト付き）
+- `rules.json` を大幅拡充（自治体ID系、日付、連絡先、住所、補助ルール）。
+- `local_dictionary.json` を拡充（labels / facilities / areas / idSuffixKeywords / highRiskFreeTextKeywords）。
+- `MaskingService` に辞書ベース動的ルール生成を実装：
+  - `BuildLocalLabelRules`
+  - `BuildNameLabelRules`
+  - `BuildAddressLabelRules`
+  - `BuildDateLabelRules`
+  - `BuildContactLabelRules`
+  - `BuildDepartmentPersonRules`
+  - `BuildDictionaryFullNameRules`
+- 除外語（御中・各位・様 等）を導入し部署名＋氏名ルールの過検出を抑制。
 
 ## フォルダ構成
 
@@ -23,96 +29,111 @@
 maskedpi/
 ├─ src/
 │  ├─ MaskedPi.App/
-│  │  ├─ App.xaml
-│  │  ├─ MainWindow.xaml
-│  │  └─ MainWindow.xaml.cs
 │  └─ MaskedPi.Core/
-│     ├─ RuleDefinition.cs
-│     ├─ RuleLoader.cs
-│     ├─ RuleEngine.cs
-│     ├─ MaskingService.cs
-│     ├─ MaskingResult.cs
-│     ├─ ReplacementRecord.cs
-│     ├─ DictionaryProvider.cs
-│     └─ LocalDictionary.cs
+├─ tests/
+│  └─ MaskedPi.Core.Tests/
 ├─ config/
 │  ├─ rules.json
 │  └─ local_dictionary.json
 └─ README.md
 ```
 
-## 主要クラス
+## ルール追加方法（rules.json）
 
-- `MainWindow`
-  - 入出力UI、ボタン操作（実行・コピー・クリア・設定再読込）、件数サマリ表示。
-- `MaskingService`
-  - ルール/辞書読込の統合、実行用ランタイムルール構築。
-- `RuleLoader`
-  - `rules.json` を読み込み、無効ルールをスキップして警告化。
-- `DictionaryProvider`
-  - `local_dictionary.json` の読込。
-- `RuleEngine`
-  - 優先順位順に候補抽出し、重複範囲は先勝ちで1回だけ置換。
-- `MaskingResult` / `ReplacementRecord`
-  - 置換結果、カテゴリ別件数、各置換詳細の保持。
+1. `config/rules.json` の `rules` 配列にオブジェクトを追加。
+2. 最低限、以下を設定：
+   - `name`, `enabled`, `category`, `pattern`, `replacement`, `priority`
+3. 推奨で以下も設定：
+   - `profile`, `description`, `sampleText`, `notes`, `source`, `tags`
+4. ルール優先順位の目安：
+   - 10〜29: LocalRule
+   - 30〜39: ラベル付き属性（主に辞書動的ルール）
+   - 40〜49: Phone / Email / PostalCode
+   - 50〜59: Date
+   - 60〜69: Address
+   - 70〜79: Name
+   - 80〜99: 補助ルール
+
+## 辞書追加方法（local_dictionary.json）
+
+1. `config/local_dictionary.json` のキーに値を追加。
+2. 特に更新頻度が高いのは以下：
+   - `nameLabels`, `addressLabels`, `dateLabels`, `contactLabels`
+   - `localLabels`, `idPrefixes`, `idSuffixKeywords`
+   - `departmentNames`
+3. キー欠落時は空配列で扱う設計のため、段階的追加が可能。
+
+## 自治体ローカルルールの育て方
+
+- まずは帳票で明示的なラベル（例: `相談管理番号:`）を優先して追加。
+- 次にプレフィックス（例: `CASE-`）を追加。
+- それでも漏れる場合にのみ汎用ルール（末尾キーワード `番号` など）を追加。
+- 誤検出が増えたら優先度を下げるか、正規表現を厳しくする。
+
+## 誤検出を抑えるコツ
+
+- 氏名・住所の自由文抽出は控えめにし、ラベル付き検出を優先する。
+- 部署名 + 氏名ルールは除外語（御中/各位/様 等）を必ず適用する。
+- `.{0,40}` のような曖昧範囲は短めに保つ。
+- 「検出漏れを少し許容して誤検出を減らす」バランスを基本にする。
+
+## 優先順位設計の考え方
+
+- 個別性の高いルールを先（低い priority）に置く。
+- 汎用的な補助ルールは後ろ（高い priority）へ配置。
+- RuleEngine は重複範囲を先勝ちで確定するため、priority が挙動を決定する。
+
+## 業務別プロファイル構想
+
+- 現時点では UI 切替は未実装。
+- ただし、各ルールに `profile` を保持済み：
+  - `common`, `resident`, `tax`, `welfare`, `education`
+- 今後は profile 単位で読込フィルタを追加するだけで業務別運用へ移行可能。
+
+## サンプル入力 / 出力（追加例）
+
+### 入力
+
+```text
+福祉課 担当 山田花子
+相談管理番号: SDN-5566
+生年月日: 昭和60年1月2日
+電話番号: 090-1234-5678
+送付先住所: 東京都千代田区1-2-3
+```
+
+### 出力
+
+```text
+[部署担当者]
+[相談管理番号]
+[日付]
+[連絡先]
+[住所]
+```
+
+## テスト
+
+`tests/MaskedPi.Core.Tests` に以下の観点を追加済みです。
+
+- 辞書から `nameLabels` を使った動的氏名ルール生成。
+- 辞書から `addressLabels` / `dateLabels` / `contactLabels` ルール生成。
+- `localLabels` と `idPrefixes` のルール生成。
+- 競合時の priority 先勝ち。
+- `departmentNames + 氏名` の過検出抑制（除外語）。
+- JSON キー欠落時の読込継続。
 
 ## 実行方法（Windows）
 
 ```powershell
-# 1) .NET 8 SDK インストール済み前提
-# 2) WPF アプリを実行
 cd src/MaskedPi.App
 dotnet run
 ```
 
-> `config/rules.json` と `config/local_dictionary.json` は実行時に自動読込されます。
+## TODO
 
-## サンプル入出力
-
-### 入力例
-
-```text
-申請者: 佐藤 太郎
-電話 09012345678
-メール test.user@example.com
-住所: 東京都千代田区1-2-3
-宛名番号: ATN-001122
-生年月日: 昭和60年1月2日
-```
-
-### 出力例
-
-```text
-[氏名]
-電話 [電話番号]
-メール [メール]
-住所: [住所]
-[宛名番号]
-生年月日: [日付]
-```
-
-## TODO（不足機能）
-
-- 詳細なルール編集UI（現状はJSON直接編集）。
-- `nameLabels` を使った動的ラベル氏名ルール生成（現状は `rules.json` 側で対応）。
-- 部署名 + 氏名の複合ルール（辞書を使った安全な誤検出抑制設計が必要）。
-- 置換履歴のCSV出力。
-- 単体テストプロジェクトの追加（環境依存なく実行可能なCI設計）。
-
-## 今後の拡張案
-
-1. ルールテスター画面（正規表現とサンプル文で即時検証）。
-2. ルールセットの業務別プロファイル切替（福祉/税務/教育など）。
-3. 監査ログ（誰がいつ何件マスクしたかの匿名統計）。
-4. ルールエンジンの別プロセス化（将来のAPI化を見据えた境界分離）。
-5. 外部検出エンジンへの差し替えインターフェース（Presidio等）。
-
-## テスト観点一覧
-
-- 起動時に設定ファイル読込できるか（正常/ファイル欠損/JSON破損）。
-- ルール順序（ローカル→電話→メール→郵便→日付→住所→氏名）が効くか。
-- 重複マッチが二重置換されないか。
-- 長文（数万文字）で実用速度を維持できるか。
-- 誤検出が過剰でないか（特に住所/氏名）。
-- コピー/クリア/UI表示が直感的に使えるか。
-
+- profile 切替UIの追加。
+- `facilityNames` / `schoolNames` / `localAreas` を使う動的ルール拡張。
+- `highRiskFreeTextKeywords` の注意喚起表示（非置換）の実装。
+- ルール編集・テスト画面の追加。
+- CI で `dotnet test` 自動実行。
