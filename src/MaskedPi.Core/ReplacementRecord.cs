@@ -6,9 +6,12 @@ namespace MaskedPi.Core;
 public sealed class ReplacementRecord
 {
     public required string RuleName { get; init; }
+    public required int Priority { get; init; }
     public required RuleCategory Category { get; init; }
     public required int StartIndex { get; init; }
     public required int Length { get; init; }
     public required string OriginalText { get; init; }
     public required string ReplacementText { get; init; }
+    public string Source { get; init; } = "unknown";
+    public string? Notes { get; init; }
 }

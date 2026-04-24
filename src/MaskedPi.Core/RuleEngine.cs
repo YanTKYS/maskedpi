@@ -54,11 +54,14 @@ public sealed class RuleEngine
             .Select(m => new ReplacementRecord
             {
                 RuleName = m.Rule.Name,
+                Priority = m.Rule.Priority,
                 Category = m.Rule.Category,
                 StartIndex = m.Start,
                 Length = m.Length,
                 OriginalText = m.Value,
-                ReplacementText = m.Rule.Replacement
+                ReplacementText = m.Rule.Replacement,
+                Source = string.IsNullOrWhiteSpace(m.Rule.Source) ? "unknown" : m.Rule.Source!,
+                Notes = m.Rule.Notes
             })
             .ToList();
 
@@ -66,11 +69,16 @@ public sealed class RuleEngine
             .GroupBy(r => r.Category)
             .ToDictionary(g => g.Key, g => g.Count());
 
+        var ruleCounts = replacements
+            .GroupBy(r => r.RuleName)
+            .ToDictionary(g => g.Key, g => g.Count());
+
         return new MaskingResult
         {
             MaskedText = maskedText,
             Replacements = replacements,
-            CategoryCounts = counts
+            CategoryCounts = counts,
+            RuleHitCounts = ruleCounts
         };
     }
 

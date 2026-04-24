@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Text;
 using System.Windows;
 using MaskedPi.Core;
 
@@ -10,6 +11,7 @@ public partial class MainWindow : Window
     private readonly MaskingService _maskingService;
     private List<RuleDefinition> _runtimeRules = new();
     private readonly ObservableCollection<SummaryRow> _summaryRows = new();
+    private readonly ObservableCollection<TesterHitRow> _testerHitRows = new();
 
     private readonly string _rulePath;
     private readonly string _dictionaryPath;
@@ -20,6 +22,7 @@ public partial class MainWindow : Window
 
         _maskingService = new MaskingService(new RuleLoader(), new DictionaryProvider(), new RuleEngine());
         SummaryDataGrid.ItemsSource = _summaryRows;
+        TesterHitsDataGrid.ItemsSource = _testerHitRows;
 
         var baseDir = AppContext.BaseDirectory;
         _rulePath = Path.Combine(baseDir, "config", "rules.json");
@@ -55,8 +58,7 @@ public partial class MainWindow : Window
 
     private void MaskButton_OnClick(object sender, RoutedEventArgs e)
     {
-        var input = InputTextBox.Text;
-        var result = _maskingService.Mask(input, _runtimeRules);
+        var result = _maskingService.Mask(InputTextBox.Text, _runtimeRules);
         OutputTextBox.Text = result.MaskedText;
 
         SummaryHeaderTextBlock.Text = $"置換件数: {result.TotalReplacements}";
@@ -67,6 +69,28 @@ public partial class MainWindow : Window
             result.CategoryCounts.TryGetValue(category, out var count);
             _summaryRows.Add(new SummaryRow(GetCategoryLabel(category), count));
         }
+    }
+
+    private void TesterRunButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        var result = _maskingService.Mask(TesterInputTextBox.Text, _runtimeRules);
+        TesterOutputTextBox.Text = result.MaskedText;
+
+        _testerHitRows.Clear();
+        foreach (var hit in result.Replacements.OrderBy(x => x.StartIndex))
+        {
+            _testerHitRows.Add(new TesterHitRow(
+                hit.RuleName,
+                GetCategoryLabel(hit.Category),
+                hit.Priority,
+                hit.OriginalText,
+                hit.ReplacementText,
+                hit.StartIndex,
+                hit.Length,
+                hit.Source));
+        }
+
+        TesterSummaryTextBlock.Text = $"ヒット件数: {result.TotalReplacements} / ルール数: {result.RuleHitCounts.Count}";
     }
 
     private void ReloadButton_OnClick(object sender, RoutedEventArgs e)
@@ -84,6 +108,39 @@ public partial class MainWindow : Window
 
         Clipboard.SetText(OutputTextBox.Text);
         StatusTextBlock.Text = "マスキング結果をクリップボードにコピーしました。";
+        StatusTextBlock.Foreground = System.Windows.Media.Brushes.DarkGreen;
+    }
+
+    private void TesterCopyOutputButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(TesterOutputTextBox.Text))
+        {
+            MessageBox.Show("テスト出力が空です。", "MaskedPi", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        Clipboard.SetText(TesterOutputTextBox.Text);
+        StatusTextBlock.Text = "テスター出力をコピーしました。";
+        StatusTextBlock.Foreground = System.Windows.Media.Brushes.DarkGreen;
+    }
+
+    private void TesterCopyDetailButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (_testerHitRows.Count == 0)
+        {
+            MessageBox.Show("ヒット詳細がありません。", "MaskedPi", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine("RuleName\tCategory\tPriority\tMatchedText\tReplacement\tStartIndex\tLength\tSource");
+        foreach (var row in _testerHitRows)
+        {
+            sb.AppendLine($"{row.RuleName}\t{row.CategoryLabel}\t{row.Priority}\t{row.MatchedText}\t{row.Replacement}\t{row.StartIndex}\t{row.Length}\t{row.Source}");
+        }
+
+        Clipboard.SetText(sb.ToString());
+        StatusTextBlock.Text = "ヒット詳細をクリップボードにコピーしました。";
         StatusTextBlock.Foreground = System.Windows.Media.Brushes.DarkGreen;
     }
 
@@ -119,4 +176,14 @@ public partial class MainWindow : Window
     };
 
     private sealed record SummaryRow(string CategoryLabel, int Count);
+
+    private sealed record TesterHitRow(
+        string RuleName,
+        string CategoryLabel,
+        int Priority,
+        string MatchedText,
+        string Replacement,
+        int StartIndex,
+        int Length,
+        string Source);
 }

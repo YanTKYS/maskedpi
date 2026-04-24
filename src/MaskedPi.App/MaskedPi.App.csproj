@@ -18,5 +18,8 @@
     <Content Include="..\..\config\local_dictionary.json" Link="config\local_dictionary.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\..\config\test_cases.json" Link="config\test_cases.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>
