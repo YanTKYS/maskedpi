@@ -100,6 +100,9 @@ public sealed class MaskingServiceTests
         Assert.True(loaded.Success);
         Assert.Contains(loaded.Rules, r => r.Name.StartsWith("DynamicNameLabelRule::", StringComparison.Ordinal));
         Assert.Contains(loaded.Rules, r => r.Name.StartsWith("DynamicDepartmentPersonRule::", StringComparison.Ordinal));
+        Assert.Contains(loaded.Rules, r => r.Name.StartsWith("DynamicAttributeLabelRule::", StringComparison.Ordinal));
+        Assert.Contains(loaded.Rules, r => r.Name.StartsWith("DynamicAddressBuildingRule::", StringComparison.Ordinal));
+        Assert.Contains(loaded.Rules, r => r.Name.StartsWith("DynamicNameContextRule::", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -203,6 +206,22 @@ public sealed class MaskingServiceTests
         Assert.Equal("[X]", masked.MaskedText);
     }
 
+
+    [Fact]
+    public void ContextNameAndAttributeAndBuildingAddress_AreMasked()
+    {
+        var fixture = CreateFixture();
+        var loaded = fixture.Service.Load(fixture.RulePath, fixture.DictionaryPath);
+
+        var input = "令和7年4月1日付けで、佐藤 太郎（生年月日：1985年3月15日、性別：男性）より提出。住所は沖縄県那覇市おもろまち2丁目3番4号 グリーンハイツ501号室です。";
+        var masked = fixture.Service.Mask(input, loaded.Rules, "common");
+
+        Assert.Contains("[日付]", masked.MaskedText);
+        Assert.Contains("[氏名]", masked.MaskedText);
+        Assert.Contains("[個人属性]", masked.MaskedText);
+        Assert.Contains("[住所]", masked.MaskedText);
+    }
+
     [Fact]
     public void SwitchingProfile_ChangesResult()
     {
@@ -241,6 +260,8 @@ public sealed class MaskingServiceTests
             addressLabels = new[] { "住所", "現住所" },
             dateLabels = new[] { "生年月日", "申請日" },
             contactLabels = new[] { "電話番号", "メール" },
+            attributeLabels = new[] { "生年月日", "性別", "続柄", "国籍", "電話番号", "携帯番号", "メールアドレス" },
+            addressBuildingKeywords = new[] { "ハイツ", "マンション", "コーポ", "ビル", "アパート", "荘", "号室", "階" },
             localLabels = new[] { "申請番号", "相談管理番号" },
             localLabelsByProfile = new Dictionary<string, string[]> { ["tax"] = new[] { "納税通知書番号" }, ["welfare"] = new[] { "ケース番号" } },
             idPrefixes = new[] { "SINSEI-", "CASE-" },

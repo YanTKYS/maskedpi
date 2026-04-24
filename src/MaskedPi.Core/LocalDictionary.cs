@@ -10,6 +10,8 @@ public sealed class LocalDictionary
     public List<string> AddressLabels { get; set; } = new();
     public List<string> DateLabels { get; set; } = new();
     public List<string> ContactLabels { get; set; } = new();
+    public List<string> AttributeLabels { get; set; } = new();
+    public List<string> AddressBuildingKeywords { get; set; } = new();
 
     public List<string> Surnames { get; set; } = new();
     public List<string> GivenNames { get; set; } = new();

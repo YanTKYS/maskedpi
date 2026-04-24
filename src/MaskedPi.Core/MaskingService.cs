@@ -77,7 +77,10 @@ public sealed class MaskingService
         runtime.AddRange(BuildAddressLabelRules(dictionary.AddressLabels, CommonProfile));
         runtime.AddRange(BuildDateLabelRules(dictionary.DateLabels, CommonProfile));
         runtime.AddRange(BuildContactLabelRules(dictionary.ContactLabels, CommonProfile));
+        runtime.AddRange(BuildAttributeLabelRules(dictionary.AttributeLabels, CommonProfile));
+        runtime.AddRange(BuildAddressBuildingRules(dictionary.AddressBuildingKeywords, CommonProfile));
         runtime.AddRange(BuildDepartmentPersonRules(dictionary.DepartmentNames, CommonProfile));
+        runtime.AddRange(BuildNameContextRules(dictionary.Surnames, dictionary.GivenNames, CommonProfile));
         runtime.AddRange(BuildDictionaryFullNameRules(dictionary.Surnames, dictionary.GivenNames, CommonProfile));
 
         // プロファイル別辞書ルール
@@ -88,7 +91,6 @@ public sealed class MaskingService
             runtime.AddRange(BuildDepartmentPersonRules(merged.DepartmentNames, profile));
         }
 
-        // profile 未指定ルールは common 扱い
         foreach (var rule in runtime.Where(r => string.IsNullOrWhiteSpace(r.Profile)))
         {
             rule.Profile = CommonProfile;
@@ -291,6 +293,87 @@ public sealed class MaskingService
             Description = "辞書 contactLabels から生成するラベル付き連絡先",
             SampleText = "電話番号: 090-1234-5678",
             Notes = "電話とメールをまとめてマスク"
+        };
+    }
+
+    private static IEnumerable<RuleDefinition> BuildAttributeLabelRules(IEnumerable<string> attributeLabels, string profile)
+    {
+        var labels = DistinctSafe(attributeLabels).ToList();
+        if (labels.Count == 0)
+        {
+            yield break;
+        }
+
+        var labelAlt = BuildAlternation(labels);
+        const string valueToken = "(?:\\d{4}年\\d{1,2}月\\d{1,2}日|\\d{4}[/-]\\d{1,2}[/-]\\d{1,2}|(?:令和|平成|昭和)(?:元|\\d{1,2})年\\d{1,2}月\\d{1,2}日|男性|女性|男|女|その他|不明|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}|0\\d{1,4}-?\\d{1,4}-?\\d{3,4}|[^、。\\)\\]\\n]{1,24})";
+
+        yield return new RuleDefinition
+        {
+            Name = $"DynamicAttributeLabelRule::{profile}",
+            Enabled = true,
+            Category = RuleCategory.Other,
+            Pattern = $"(?:{labelAlt})[:：]\\s*{valueToken}",
+            Replacement = "[個人属性]",
+            Priority = 31,
+            Profile = profile,
+            Source = "dictionary-generated",
+            Description = "辞書 attributeLabels から生成するラベル付き個人属性",
+            SampleText = "生年月日：1985年3月15日",
+            Notes = "括弧内・読点区切りを想定"
+        };
+    }
+
+    private static IEnumerable<RuleDefinition> BuildAddressBuildingRules(IEnumerable<string> buildingKeywords, string profile)
+    {
+        var keywords = DistinctSafe(buildingKeywords).ToList();
+        if (keywords.Count == 0)
+        {
+            yield break;
+        }
+
+        var kwAlt = BuildAlternation(keywords);
+        yield return new RuleDefinition
+        {
+            Name = $"DynamicAddressBuildingRule::{profile}",
+            Enabled = true,
+            Category = RuleCategory.Address,
+            Pattern = $"(?:東京都|北海道|(?:京都|大阪)府|..県).{{1,20}}(?:市|区|町|村).{{0,30}}(?:\\d{{1,4}}-\\d{{1,4}}(?:-\\d{{1,4}})?|\\d{{1,4}}丁目\\d{{1,4}}番\\d{{1,4}}号|\\d{{1,4}}番地)(?:\\s*[一-龥ぁ-んァ-ヶA-Za-z0-9・\\-]{{1,30}}(?:{kwAlt})\\s*[A-Za-z]?[-]?\\d{{1,4}}(?:号室)?|\\s*\\d{{1,4}}号室|\\s*\\d{{1,3}}階)?",
+            Replacement = "[住所]",
+            Priority = 61,
+            Profile = profile,
+            Source = "dictionary-generated",
+            Description = "建物名・部屋番号を含む住所補完ルール",
+            SampleText = "沖縄県那覇市おもろまち2丁目3番4号 グリーンハイツ501号室",
+            Notes = "番地直後の建物名候補のみ補完"
+        };
+    }
+
+    private static IEnumerable<RuleDefinition> BuildNameContextRules(IEnumerable<string> surnames, IEnumerable<string> givenNames, string profile)
+    {
+        var surnameList = DistinctSafe(surnames).Take(200).ToList();
+        var givenList = DistinctSafe(givenNames).Take(200).ToList();
+        if (surnameList.Count == 0 || givenList.Count == 0)
+        {
+            yield break;
+        }
+
+        var surnameAlt = BuildAlternation(surnameList);
+        var givenAlt = BuildAlternation(givenList);
+        var excludedAlt = BuildAlternation(ExcludedNonNameWords);
+
+        yield return new RuleDefinition
+        {
+            Name = $"DynamicNameContextRule::{profile}",
+            Enabled = true,
+            Category = RuleCategory.Name,
+            Pattern = $"(?!(?:{excludedAlt})\\b)(?:{surnameAlt})(?:\\s|　)?(?:{givenAlt})(?=（|より|から|について|に係る|\\s?様|さん)",
+            Replacement = "[氏名]",
+            Priority = 72,
+            Profile = profile,
+            Source = "dictionary-generated",
+            Description = "行政文脈限定の氏名検出（より/から/括弧等）",
+            SampleText = "山田 太郎（生年月日：1985年3月15日）",
+            Notes = "自由文抽出を避けるため文脈限定"
         };
     }
 
